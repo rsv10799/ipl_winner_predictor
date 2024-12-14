@@ -25,11 +25,15 @@ cities = ['Hyderabad', 'Bangalore', 'Mumbai', 'Indore', 'Kolkata', 'Delhi',
 # Loading the machine learning model from a saved pickle file
 @st.cache_resource
 def load_model():
-    return pickle.load(open('pipe.pkl', 'rb'))
+    try:
+        return pickle.load(open('pipe.pkl', 'rb'))
+    except FileNotFoundError:
+        st.error("Model file 'pipe.pkl' not found. Please ensure it's uploaded.")
+        return None
 
 pipe = load_model()
 
-# Setting up the app's title
+# Set up the app's title
 st.title('IPL Win Predictor')
 
 # Setting up the layout with two columns
@@ -114,16 +118,31 @@ else:
                      'cur_run_rate': [current_run_rate], 
                      'req_run_rate': [required_run_rate]})
                 
-                # Loading the trained machine learning pipeline to make the prediction
-                result = pipe.predict_proba(input_df)
+                # Ensure columns are treated as strings if they are categorical
+                input_df['batting_team'] = input_df['batting_team'].astype(str)
+                input_df['bowling_team'] = input_df['bowling_team'].astype(str)
+                input_df['city'] = input_df['city'].astype(str)
                 
-                # Extracting the likelihood of loss and win
-                loss_prob = result[0][0]
-                win_prob = result[0][1]
+                # Ensure the input DataFrame has the same column order as the model's training data
+                expected_columns = [
+                    'batting_team', 'bowling_team', 'city', 'runs_left', 'balls_left', 'wickets', 
+                    'total_runs_x', 'cur_run_rate', 'req_run_rate'
+                ]
+                input_df = input_df[expected_columns]
+
+                # Make prediction only if model is loaded successfully
+                if pipe:
+                    result = pipe.predict_proba(input_df)
                 
-                # Displaying the predicted likelihood of winning and losing in percentage
-                st.header(f'{battingteam} - {round(win_prob * 100)}%')
-                st.header(f'{bowlingteam} - {round(loss_prob * 100)}%')
+                    # Extracting the likelihood of loss and win
+                    loss_prob = result[0][0]
+                    win_prob = result[0][1]
+                    
+                    # Displaying the predicted likelihood of winning and losing in percentage
+                    st.header(f'{battingteam} - {round(win_prob * 100)}%')
+                    st.header(f'{bowlingteam} - {round(loss_prob * 100)}%')
+                else:
+                    st.error("Model is not available for prediction.")
 
         except ZeroDivisionError:
             st.error("Please fill all the details correctly.")
