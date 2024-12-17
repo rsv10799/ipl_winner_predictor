@@ -112,8 +112,7 @@ else:
                      'bowling_team': [bowlingteam], 
                      'city': [city], 
                      'runs_left': [runs_left], 
-                     'balls_left': [balls_left],
-                     'wickets_left': [wickets_left], 
+                     'balls_left': [balls_left], 
                      'total_runs_x': [target], 
                      'cur_run_rate': [current_run_rate], 
                      'req_run_rate': [required_run_rate]})
