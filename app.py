@@ -5,22 +5,17 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 
 # Declaring the teams
-teams = ['Sunrisers Hyderabad',
-         'Mumbai Indians',
-         'Royal Challengers Bangalore',
-         'Kolkata Knight Riders',
-         'Kings XI Punjab',
-         'Chennai Super Kings',
-         'Rajasthan Royals',
-         'Delhi Capitals']
+teams = ['Sunrisers Hyderabad', 'Mumbai Indians', 'Royal Challengers Bangalore',
+         'Kolkata Knight Riders', 'Kings XI Punjab', 'Chennai Super Kings',
+         'Rajasthan Royals', 'Delhi Capitals']
 
 # Declaring the venues where the matches are going to take place
 cities = ['Hyderabad', 'Bangalore', 'Mumbai', 'Indore', 'Kolkata', 'Delhi',
           'Chandigarh', 'Jaipur', 'Chennai', 'Cape Town', 'Port Elizabeth',
           'Durban', 'Centurion', 'East London', 'Johannesburg', 'Kimberley',
           'Bloemfontein', 'Ahmedabad', 'Cuttack', 'Nagpur', 'Dharamsala',
-          'Visakhapatnam', 'Pune', 'Raipur', 'Ranchi', 'Abu Dhabi',
-          'Sharjah', 'Mohali', 'Bengaluru']
+          'Visakhapatnam', 'Pune', 'Raipur', 'Ranchi', 'Abu Dhabi', 'Sharjah',
+          'Mohali', 'Bengaluru']
 
 # Loading the machine learning model from a saved pickle file
 @st.cache_resource
@@ -111,26 +106,29 @@ else:
                     'city': [city], 
                     'runs_left': [runs_left], 
                     'balls_left': [balls_left],
-                    'wickets_left': [wickets_left],  # Changed column name here to 'wickets_left'
+                    'wickets_left': [wickets_left],  # Ensure this is correct
                     'total_runs_x': [target], 
                     'cur_run_rate': [current_run_rate], 
                     'req_run_rate': [required_run_rate]
                 })
-                
+
+                # Debugging: Show the input DataFrame
+                st.write("Input DataFrame:", input_df)
+
                 # Ensure columns are treated as strings if they are categorical
                 input_df['batting_team'] = input_df['batting_team'].astype(str)
                 input_df['bowling_team'] = input_df['bowling_team'].astype(str)
                 input_df['city'] = input_df['city'].astype(str)
-                
-                # Debugging: Print the input columns to compare them with the model's expected columns
-                st.write("Input columns:", input_df.columns)
 
                 # Ensure the input DataFrame has the same column order as the model's training data
                 expected_columns = [
-                    'batting_team', 'bowling_team', 'city', 'runs_left', 'balls_left', 'wickets_left',  # Use 'wickets_left' here
+                    'batting_team', 'bowling_team', 'city', 'runs_left', 'balls_left', 'wickets_left', 
                     'total_runs_x', 'cur_run_rate', 'req_run_rate'
                 ]
                 input_df = input_df[expected_columns]
+
+                # Debugging: Print the transformed input
+                st.write("Transformed DataFrame:", input_df)
 
                 # Make prediction only if model is loaded successfully
                 if pipe:
